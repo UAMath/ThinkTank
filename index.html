@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSV to Excel Converter</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Load Pyodide (Python in the browser) -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+</head>
+<body>
+
+    <h2>TSV / TXT to Excel Converter</h2>
+
+    <!-- Drag and Drop Area -->
+    <div id="drop-zone">
+        Drag & Drop your file here <br> or <br> <strong>Click to Select</strong>
+        <input type="file" id="file-input" accept=".txt,.tsv" style="display: none;">
+    </div>
+
+    <div id="file-info">No file selected</div>
+    <button id="convert-btn" disabled>Convert & Download</button>
+    <div id="status">Loading Python runtime...</div>
+
+    <!-- External JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
