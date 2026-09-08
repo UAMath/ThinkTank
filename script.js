@@ -54,11 +54,11 @@ convertBtn.addEventListener("click", async () => {
     try {
         const textContent = await selectedFile.text();
 
-        // Pass TSV content directly to the Python function defined in process_data.py
+        // pass TSV content directly to the Python function defined in process_data.py
         const convertFunc = pyodide.globals.get("convert_tsv_to_excel");
         const bytes = convertFunc(textContent);
 
-        // Download Excel File
+        // download Excel File
         const blob = new Blob([bytes.toJs()], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
