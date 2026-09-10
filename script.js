@@ -7,14 +7,24 @@ const fileInfo = document.getElementById("file-info");
 const convertBtn = document.getElementById("convert-btn");
 const status = document.getElementById("status");
 
-// initialize Pyodide, install openpyxl, and load the process_data.py file
 async function initPyodide() {
+    status.innerText = "Initializing Python...";
     pyodide = await loadPyodide();
+    
     await pyodide.loadPackage("micropip");
     const micropip = pyodide.pyimport("micropip");
     await micropip.install("openpyxl");
 
-    // fetch process_data.py script and load it into Pyodide
+    // Fetch and load master_sheet.csv into Pyodide's virtual filesystem
+    try {
+        const masterResponse = await fetch("master_sheet.csv");
+        const masterCsvText = await masterResponse.text();
+        pyodide.FS.writeFile("master_sheet.csv", masterCsvText);
+    } catch (err) {
+        console.error("Failed to load master_sheet.csv:", err);
+    }
+
+    // Load process_data.py
     const response = await fetch("process_data.py");
     const pythonCode = await response.text();
     await pyodide.runPythonAsync(pythonCode);
@@ -23,7 +33,7 @@ async function initPyodide() {
 }
 initPyodide();
 
-// drag & Drop Event Listeners
+// Drag & Drop Event Listeners
 dropZone.addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", (e) => handleFile(e.target.files[0]));
 
@@ -44,7 +54,7 @@ function handleFile(file) {
     if (pyodide) convertBtn.disabled = false;
 }
 
-// convert on Button Click
+// Convert on Button Click
 convertBtn.addEventListener("click", async () => {
     if (!selectedFile) return;
 
@@ -54,11 +64,9 @@ convertBtn.addEventListener("click", async () => {
     try {
         const textContent = await selectedFile.text();
 
-        // pass TSV content directly to the Python function defined in process_data.py
         const convertFunc = pyodide.globals.get("convert_tsv_to_excel");
         const bytes = convertFunc(textContent);
 
-        // download Excel File
         const blob = new Blob([bytes.toJs()], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -69,7 +77,7 @@ convertBtn.addEventListener("click", async () => {
 
         status.innerText = "Done! Excel file downloaded.";
     } catch (err) {
-        status.innerText = "Error processing file!";
+        status.innerText = "Error processing file! Check console for details.";
         console.error(err);
     } finally {
         convertBtn.disabled = false;

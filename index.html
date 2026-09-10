@@ -1,31 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TSV to Excel Converter</title>
-    
-    <!-- external CSS -->
-    <link rel="stylesheet" href="style.css">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TSV to Excel Converter</title>
+        
+        <link rel="stylesheet" href="style.css">
 
-    <!-- load Pyodide (Python in the browser) -->
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
-</head>
-<body>
+        <!-- load Pyodide (Python in the browser) -->
+        <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    </head>
+    <body>
 
-    <h2>TSV to Excel Converter</h2>
+        <h2>TSV to Excel Converter</h2>
 
-    <!-- drag and Drop Area -->
-    <div id="drop-zone">
-        Drag & Drop your file here <br> or <br> <strong>Click to Select</strong>
-        <input type="file" id="file-input" accept=".txt,.tsv" style="display: none;">
-    </div>
+        <!-- drag and drop Area -->
+        <div id="drop-zone">
+            Drag & Drop your file here <br> or <br> <strong>Click to Select</strong>
+            <input type="file" id="file-input" accept=".txt,.tsv" style="display: none;">
+        </div>
 
-    <div id="file-info">No file selected</div>
-    <button id="convert-btn" disabled>Convert & Download</button>
-    <div id="status">Loading Python runtime...</div>
+        <div id="file-info">No file selected</div>
+        <button id="convert-btn" disabled>Convert & Download</button>
+        <div id="status">Loading Python runtime...</div>
 
-    <!-- external JavaScript -->
-    <script src="script.js"></script>
-</body>
+        <script src="script.js"></script>
+    </body>
 </html>
