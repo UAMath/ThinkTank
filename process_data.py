@@ -1,6 +1,7 @@
 import csv
 import io
 from datetime import datetime
+from collections import Counter
 from openpyxl import Workbook
 
 def make_first_last_key(name_str):
@@ -28,26 +29,51 @@ def convert_tsv_to_excel(tsv_text):
     # 1. Load Master Sheet into lookup dictionary
     email_lookup = {}
     
+    # Dictionaries to count individual first/last name occurrences
+    first_name_counts = Counter()
+    last_name_counts = Counter()
+    first_name_to_email = {}
+    last_name_to_email = {}
+
     try:
         with open('master_sheet.csv', mode='r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                # Combine First Name and Last Name columns
-                first_name = row.get('First Name', '').strip()
-                last_name = row.get('Last Name', '').strip()
-                raw_name = f"{first_name} {last_name}".strip()
-                
+                first_name = row.get('First Name', '').strip().lower()
+                last_name = row.get('Last Name', '').strip().lower()
                 email = row.get('Email', '').strip()
+
+                if not email:
+                    continue
+
+                raw_name = f"{first_name} {last_name}"
+                normalized_name = " ".join(raw_name.split())
                 
-                if raw_name and email:
-                    email_lookup[raw_name.lower()] = email
-                    short_key = make_first_last_key(raw_name)
+                if normalized_name:
+                    email_lookup[normalized_name] = email
+                    short_key = make_first_last_key(normalized_name)
                     if short_key:
                         email_lookup[short_key] = email
 
+                if first_name:
+                    first_name_counts[first_name] += 1
+                    first_name_to_email[first_name] = email
+
+                if last_name:
+                    last_name_counts[last_name] += 1
+                    last_name_to_email[last_name] = email
+
+        for fn, count in first_name_counts.items():
+            if count == 1 and fn not in email_lookup:
+                email_lookup[fn] = first_name_to_email[fn]
+
+        for ln, count in last_name_counts.items():
+            if count == 1 and ln not in email_lookup:
+                email_lookup[ln] = last_name_to_email[ln]
+
     except Exception as e:
         print(f"Warning: Could not read master_sheet.csv: {e}")
-        
+
     # 2. Set up Excel Workbook
     wb = Workbook()
     ws = wb.active
@@ -81,11 +107,12 @@ def convert_tsv_to_excel(tsv_text):
 
         # Check if email is non-UA and lookup replacement in master sheet
         if email and not email.lower().endswith("@arizona.edu"):
-            input_key = name.strip().lower()
+            # Normalize incoming search key (lowercase & single spaces)
+            input_key = " ".join(name.lower().split())
             found_email = email_lookup.get(input_key)
             
             if not found_email:
-                short_input_key = make_first_last_key(name)
+                short_input_key = make_first_last_key(input_key)
                 found_email = email_lookup.get(short_input_key)
             
             if found_email:
