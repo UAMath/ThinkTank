@@ -32,18 +32,22 @@ def convert_tsv_to_excel(tsv_text):
         with open('master_sheet.csv', mode='r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                raw_name = row.get('Name', '').strip()
+                # Combine First Name and Last Name columns
+                first_name = row.get('First Name', '').strip()
+                last_name = row.get('Last Name', '').strip()
+                raw_name = f"{first_name} {last_name}".strip()
+                
                 email = row.get('Email', '').strip()
                 
                 if raw_name and email:
-                    email_lookup[raw_name.strip().lower()] = email
+                    email_lookup[raw_name.lower()] = email
                     short_key = make_first_last_key(raw_name)
                     if short_key:
                         email_lookup[short_key] = email
 
     except Exception as e:
         print(f"Warning: Could not read master_sheet.csv: {e}")
-
+        
     # 2. Set up Excel Workbook
     wb = Workbook()
     ws = wb.active
